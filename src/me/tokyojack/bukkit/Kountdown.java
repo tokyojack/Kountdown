@@ -9,16 +9,11 @@ public abstract class Kountdown {
 	private int seconds;
 	private int runnableID;
 
-	private final int ORGINAL_TIME;
+	private int ORGINAL_TIME;
 	private JavaPlugin plugin;
 
 	public Kountdown(int timeLeft, JavaPlugin plugin) {
-		this.timeLeft = timeLeft;
-		this.seconds = 1;
-		this.runnableID = 0;
-
-		this.ORGINAL_TIME = timeLeft;
-		this.plugin = plugin;
+		this(timeLeft, 1, plugin);
 	}
 
 	public Kountdown(int timeLeft, int seconds, JavaPlugin plugin) {
@@ -38,24 +33,34 @@ public abstract class Kountdown {
 		runnableID = this.plugin.getServer().getScheduler().scheduleSyncRepeatingTask(this.plugin, new Runnable() {
 			public void run() {
 
+				// If there is no time left
 				if (timeLeft <= 0) {
-					finished();
-					stop();
-					return;
+					finished(); // Runs the abstract void "finished"
+					stop(); // Stops the runnable
+					return; // Returns just in case
 				}
 
+				// Runs the abstract void "tick"
 				tick(timeLeft);
+				
+				// Subtracts the time by 1
 				timeLeft--;
 			}
 		}, 0, this.seconds * 20);
 
 	}
 
+	/**
+	 * Stops the runnable
+	 */
 	public void stop() {
 		resetTimeLeft();
 		Bukkit.getScheduler().cancelTask(this.runnableID);
 	}
 
+	/**
+	 * Resets the runnable's time
+	 */
 	public void resetTimeLeft() {
 		this.timeLeft = this.ORGINAL_TIME;
 	}
